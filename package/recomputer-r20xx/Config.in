@@ -1,0 +1,8 @@
+config BR2_PACKAGE_RECOMPUTER_R20XX
+	bool "recomputer-r20xx"
+	select BR2_PACKAGE_HOST_DTC
+	help
+	  Device tree overlays for the Seeed Studio reComputer Industrial
+	  R20xx (Raspberry Pi CM5).
+
+	  https://github.com/Seeed-Studio/seeed-linux-dtoverlays

@@ -1,131 +1,171 @@
-# Raspberry Pi 5 Model B (64-bit)
+# Nerves System for reComputer Industrial R20xx (64-bit)
 
-[![Hex version](https://img.shields.io/hexpm/v/nerves_system_rpi5.svg "Hex version")](https://hex.pm/packages/nerves_system_rpi5)
-[![CI](https://github.com/nerves-project/nerves_system_rpi5/actions/workflows/ci.yml/badge.svg)](https://github.com/nerves-project/nerves_system_rpi5/actions/workflows/ci.yml)
-[![REUSE status](https://api.reuse.software/badge/github.com/nerves-project/nerves_system_rpi5)](https://api.reuse.software/info/github.com/nerves-project/nerves_system_rpi5)
+[![REUSE status](https://api.reuse.software/badge/github.com/alde103/nerves_system_recomputer_r20xx)](https://api.reuse.software/info/github.com/alde103/nerves_system_recomputer_r20xx)
 
-This is the base Nerves System configuration for the Raspberry Pi 5 Model B.
+This is a Nerves System for the [Seeed Studio reComputer Industrial
+R20xx](https://wiki.seeedstudio.com/recomputer_industrial_r20xx_getting_start/)
+series (for example the
+[R2035-10](https://www.seeedstudio.com/reComputer-Industrial-R2035-10-p-6543.html)),
+a fanless DIN-rail edge controller built around the Raspberry Pi Compute Module 5.
 
-*This is the `main` branch. If you are customizing a `v0.x` system, please see
-the `maint-v0.x` branch. See the "Upgrading to 2.0" section if you are upgrading
-your Nerves system dependency.*
+It is a fork of [nerves_system_rpi5](https://github.com/nerves-project/nerves_system_rpi5)
+with the reComputer specific device tree overlay, RTC/watchdog driver and kernel
+options added on top. The `upstream` remote tracks the official system, so
+updates are merged from there.
 
-**IMPORTANT:** If your Raspberry Pi 5 was manufactured a long time ago, please
-upgrade the bootloader EEPROM firmware. This has fixed issues preventing devices
-from booting or rebooting. Raspberry Pi OS has a [reliable way of updating the
-EEPROM](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#bootloader_update_stable).
-You may have success with
-[nerves_rpi_eeprom](https://github.com/fhunleth/nerves_rpi_eeprom) if you're
-running a pre-2.0 firmware and haven't upgraded yet.
-
-
-![Raspberry Pi 5 image](assets/images/RaspberryPi_5B.svg)
-<br><sup>[Efa / Wikimedia Commons / CC BY-SA
-4.0](https://en.wikipedia.org/wiki/Raspberry_Pi#/media/File:RaspberryPi_5B_28-08-2024.svg)</sup>
-
-| Feature              | Description                      |
-| -------------------- | -------------------------------- |
-| CPU                  | 2.4 GHz quad-core Cortex-A76     |
-| Memory               | 4 GB or 8 GB DRAM                |
-| Storage              | MicroSD                          |
-| Linux kernel         | 6.18 w/ Raspberry Pi patches     |
-| IEx terminal         | HDMI and USB keyboard (can be changed to UART) |
-| GPIO, I2C, SPI       | Yes - [Elixir Circuits](https://github.com/elixir-circuits) |
-| ADC                  | No                               |
-| PWM                  | Yes, but no Elixir support       |
-| UART                 | 2 available - `ttyAMA10`, `ttyAMA0` |
-| Display              | HDMI or 7" RPi Touchscreen       |
-| Camera               | Official RPi Cameras (libcamera) |
-| Ethernet             | Yes                              |
-| WiFi                 | Yes - VintageNet                 |
-| Bluetooth            | Untested                         |
-| Audio                | HDMI/Stereo out                  |
+| Feature        | Description |
+| -------------- | ----------- |
+| CPU            | Broadcom BCM2712 quad-core Cortex-A76 @ 2.4 GHz (Raspberry Pi CM5) |
+| Memory         | 2 GB to 16 GB LPDDR4X (model dependent) |
+| Storage        | 16 GB to 64 GB eMMC (model dependent), M.2 M-key 2280 NVMe slot |
+| Linux kernel   | 6.18 w/ Raspberry Pi patches |
+| IEx terminal   | HDMI and USB keyboard (can be changed to UART) |
+| Ethernet       | ETH0 10/100/1000 (PoE PD), ETH1 10/100 (USB) |
+| Serial         | 1x RS232, 3x RS485 (isolated, USB CDC ACM) |
+| Digital I/O    | 8x isolated DI (5-24 V DC), 8x isolated DO (< 60 V DC) |
+| USB            | 3x USB-A 3.0, 1x USB-A 2.0, 1x USB-C (flashing only) |
+| Display        | 2x HDMI 2.0 |
+| WiFi/Bluetooth | On-module CYW43455 (`brcmfmac`) - VintageNet |
+| RTC            | PCF8563 with supercapacitor backup, also used as a hardware watchdog |
+| Security       | ATECC608A, optional TPM 2.0 (Infineon SLB9670) |
+| Other          | RGB user LED, buzzer, M.2 B-key (4G/5G), Mini-PCIe (4G/LoRa), M.2 M-key (Hailo-8 on -12 models) |
 
 ## Using
 
-The most common way of using this Nerves System is create a project with `mix
-nerves.new` and to export `MIX_TARGET=rpi5`. See the [Getting started
+Add the system to your project's `mix.exs`:
+
+```elixir
+@all_targets [:recomputer_r20xx]
+
+def deps do
+  [
+    {:nerves_system_recomputer_r20xx,
+     github: "alde103/nerves_system_recomputer_r20xx",
+     runtime: false,
+     targets: :recomputer_r20xx}
+  ]
+end
+```
+
+Then build with `MIX_TARGET=recomputer_r20xx`. See the [Getting started
 guide](https://nerves.hexdocs.pm/getting-started.html#creating-a-new-nerves-app)
 for more information.
 
-If you need custom modifications to this system for your device, clone this
-repository and update as described in [Making custom
-systems](https://nerves.hexdocs.pm/customizing-systems.html).
-
-## Upgrading to 2.0
-
-If your application depended on a pre-2.0 version of this Nerves system and you
-are upgrading, you'll need to start validating firmware after it boots the first
-time. If you don't do this, the Nerves MOTD will show that the firmware hasn't
-been validated when you log in. You can manually validate by calling
-`Nerves.Runtime.validate_firmware/0` or running the `fw_validate` helper at the IEx prompt.
-If you don't do this, the device will run the old firmware on the next reboot.
-
-A simple default way of validating the firmware can be enabled using
-Nerves.Runtime's startup guard feature as described in [Assisted firmware
-validation and automatic
-revert](https://nerves-runtime.hexdocs.pm/readme.html#assisted-firmware-validation-and-automatic-revert).
-Please follow the directions there for the needed config file update.
-
-If in doubt, use `mix nerves.new` to create a new project and compare what it
-creates to your project. If you haven't modified the Nerves-specific
-configuration parts of your project much, the firmware validation piece should
-be the main update.
-
-Please also review your use of `Nerves.Runtime.KV` in your application since the
-`nerves_fw_active` key no longer is used. Use `Nerves.Runtime.firmware_slots/0`
-to determine the active firmware slot. The `nerves_fw_active` key wasn't always
-accurate, so it was removed to avoid a misleading answer. The function call is
-reliable and also a generic way to determine slot status on all Nerves
-platforms.
-
-## Supported WiFi devices
-
-The base image includes drivers for the onboard Raspberry Pi 5 WiFi module
-(`brcmfmac` driver).
-
-## Camera
-
-This system supports the official Raspberry Pi camera modules via
-[`libcamera`](https://libcamera.org/). The `libcamera` applications are included so it's
-possible to replicate many of the examples in the official [Raspberry Pi Camera
-Documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html).
-
-Here's an example commandline to run:
+When working on the system itself, clone it next to your project and use a path
+dependency so that the system is compiled locally:
 
 ```elixir
-cmd("libcamera-jpeg -n -v -o /data/test.jpeg")
+{:nerves_system_recomputer_r20xx,
+ path: "../nerves_system_recomputer_r20xx",
+ runtime: false,
+ targets: :recomputer_r20xx,
+ nerves: [compile: true]}
 ```
 
-On success, you'll get an image in `/data` that you can copy off with `sftp`.
+See [Customizing systems](https://nerves.hexdocs.pm/customizing-systems.html)
+for more details.
 
-Since `libcamera` is being used instead of MMAL, the Elixir
-[picam](https://hex.pm/packages/picam) library won't work.
+## Flashing the eMMC
 
-## Audio
+The R20xx boots from its internal eMMC. To write firmware to it the first time:
 
-The Raspberry Pi has many options for audio output. This system supports the
-HDMI and stereo audio jack output. The Linux ALSA drivers are used for audio
-output.
+1. Move the boot switch to the `BOOT` position (nRPI_BOOT low).
+2. Connect the USB-C port to your computer and power the device.
+3. Run `sudo rpiboot -d mass-storage-gadget64` from
+   [raspberrypi/usbboot](https://github.com/raspberrypi/usbboot). The eMMC
+   shows up as a USB mass storage device.
+4. Run `mix burn` (or `fwup` with your `.fw` file) and select that device.
+5. Power off, move the boot switch back to its normal position and power on.
 
-The general Raspberry Pi audio documentation mostly applies to Nerves. For
-example, to force audio out the HDMI port, run:
+After that, use `mix upload` or NervesHub for updates.
+
+**IMPORTANT:** Automatic rollback uses the Raspberry Pi `tryboot` feature,
+which needs a recent bootloader EEPROM. If your CM5 has an old bootloader,
+update it using `rpiboot -d recovery5` from usbboot before relying on
+auto-revert in the field.
+
+## Digital I/O
+
+The DI/DO mapping below is derived from the Seeed wiki's Linux GPIO numbers
+(RP1 base 569, PCA9535 base 623, PCA9554 base 639). **It still needs to be
+confirmed on hardware.** Open lines by label with
+[Circuits.GPIO](https://hexdocs.pm/circuits_gpio), and use
+`Circuits.GPIO.enumerate()` to check the names on your device.
+
+| Port | Line                     | Seeed wiki GPIO |
+| ---- | ------------------------ | --------------- |
+| DI1  | RP1 GPIO19               | 588 |
+| DI2  | RP1 GPIO20               | 589 |
+| DI3  | RP1 GPIO21               | 590 |
+| DI4  | RP1 GPIO26               | 595 |
+| DI5  | RP1 GPIO4                | 573 |
+| DI6  | RP1 GPIO5                | 574 |
+| DI7  | RP1 GPIO6                | 575 |
+| DI8  | RP1 GPIO7                | 576 |
+| DO1  | PCA9535 line 15 (`DO_1`) | 638 |
+| DO2  | PCA9535 line 14 (`DO_2`) | 637 |
+| DO3  | PCA9535 line 13 (`DO_3`) | 636 |
+| DO4  | PCA9535 line 12 (`DO_4`) | 635 |
+| DO5  | RP1 GPIO8                | 577 |
+| DO6  | RP1 GPIO9                | 578 |
+| DO7  | RP1 GPIO25               | 594 |
+| DO8  | RP1 GPIO27               | 596 |
 
 ```elixir
-cmd("amixer cset numid=3 2")
+{:ok, do1} = Circuits.GPIO.open("DO_1", :output)
+Circuits.GPIO.write(do1, 1)
 ```
 
-Change the last argument to `amixer` to `1` to output to the stereo output jack.
+Other named lines on the I/O expanders include `485_1_120R_EN` and
+`485_2_120R_EN` (RS485 termination), `SIM_MUX_SEL`, `M2B_POWER_OFF` and the
+LoRaWAN reset lines. `RS485_POWER_EN`, `CH344_RST` and `TPM_RST` are held high by
+the device tree.
 
-## RP1 PIO
+## Serial ports
 
-The `rpi1-pio` device driver allows use of the PIO hardware using
-[`piolib`](https://github.com/raspberrypi/utils/tree/master/piolib). If you
-don't see `/dev/pio0`, the most likely cause is that you need to update your
-Raspberry Pi's boot EEPROM. See
-[rpi-eeprom](https://github.com/raspberrypi/rpi-eeprom) for binaries. It may be
-easier to upgrade the EEPROM via RaspberryPi OS if the instructions aren't
-clear.
+The isolated serial ports come from a WCH CH344 USB to quad UART chip handled by
+the `cdc_acm` driver:
+
+| Port    | Device         |
+| ------- | -------------- |
+| RS232-1 | `/dev/ttyACM0` |
+| RS485-2 | `/dev/ttyACM1` |
+| RS485-3 | `/dev/ttyACM2` |
+| RS485-4 | `/dev/ttyACM3` |
+
+The numbering shifts if other CDC ACM devices (such as an expansion board) enumerate first.
+
+## LEDs and buzzer
+
+The RGB user LED is available as `led-red`, `led-green` and `led-blue` under
+`/sys/class/leds`. The buzzer is a `gpio-beeper` input device.
+
+## RTC and watchdog
+
+The PCF8563 is handled by Seeed's `rtc-pcf8563w` driver (in `package/rtc-pcf8563w`).
+The driver also registers the RTC timer as a second hardware watchdog
+(120 s default timeout). Nerves' `heart` uses the BCM2712 watchdog
+(`/dev/watchdog0`), so the RTC watchdog stays idle unless you open it.
+`CONFIG_WATCHDOG_NOWAYOUT` is enabled, so once it is opened it can't be stopped.
+
+## UPS
+
+The optional supercapacitor UPS signals power loss on GPIO16 (active low). Watch
+it with Circuits.GPIO interrupts and shut down cleanly from your application.
+
+## Status
+
+This system has not been tested on hardware yet. Expected to work: boot from eMMC, A/B updates with automatic
+rollback, ETH0, WiFi, I/O expanders, DI/DO, RS232/RS485, RTC, LEDs, buzzer,
+EEPROM, NVMe.
+
+To verify on hardware:
+
+* DI/DO line mapping (table above)
+* ETH1 USB Ethernet chip (`CONFIG_USB_NET_SMSC95XX` is enabled, matching the R11xx)
+* TPM 2.0 (`tpm_tis_spi` on SPI2 CS1)
+
+Not supported yet: Hailo-8, 4G/5G modules, LoRaWAN, UPS shutdown helper.
 
 ## Provisioning devices
 
@@ -155,14 +195,14 @@ iex> cmd("fw_setenv nerves_serial_number 12345678")
 
 This system supports setting the serial number offline. To do this, set the
 `NERVES_SERIAL_NUMBER` environment variable when burning the firmware. If you're
-programming MicroSD cards using `fwup`, the commandline is:
+programming the eMMC using `fwup`, the commandline is:
 
 ```sh
 sudo NERVES_SERIAL_NUMBER=12345678 fwup path_to_firmware.fw
 ```
 
-Serial numbers are stored on the MicroSD card so if the MicroSD card is
-replaced, the serial number will need to be reprogrammed. The numbers are stored
+Serial numbers are stored on the eMMC, so reflashing with the `complete` task
+will require reprogramming them. The numbers are stored
 in a U-boot environment block. This is a special region that is separate from
 the application partition so reformatting the application partition will not
 lose the serial number or any other data stored in this block.

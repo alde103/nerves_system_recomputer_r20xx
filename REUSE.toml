@@ -76,11 +76,20 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "None"
 SPDX-License-Identifier = "CC0-1.0"
 
-# https://en.wikipedia.org/wiki/Raspberry_Pi#/media/File:RaspberryPi_5B_28-08-2024.svg
+# Seeed Studio reComputer files
+# https://github.com/Seeed-Studio/seeed-linux-dtoverlays
 [[annotations]]
 path = [
- "assets/images/RaspberryPi_5B.svg"
+ "package/recomputer-r20xx/*.dts"
 ]
-precedence = "aggregate"
-SPDX-FileCopyrightText = "Wikimedia user Efa"
-SPDX-License-Identifier = "CC-BY-SA-4.0"
+precedence = "override"
+SPDX-FileCopyrightText = "Seeed Technology Inc."
+SPDX-License-Identifier = "GPL-2.0-only"
+
+[[annotations]]
+path = [
+ "package/rtc-pcf8563w/src/**"
+]
+precedence = "override"
+SPDX-FileCopyrightText = "2005-06 Tower Technologies, 2023 Seeed Technology Inc."
+SPDX-License-Identifier = "GPL-2.0-only"

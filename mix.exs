@@ -1,8 +1,8 @@
-defmodule NervesSystemRpi5.MixProject do
+defmodule NervesSystemRecomputerR20xx.MixProject do
   use Mix.Project
 
-  @github_organization "nerves-project"
-  @app :nerves_system_rpi5
+  @github_organization "alde103"
+  @app :nerves_system_recomputer_r20xx
   @source_url "https://github.com/#{@github_organization}/#{@app}"
   @version Path.join(__DIR__, "VERSION")
            |> File.read!()
@@ -78,14 +78,13 @@ defmodule NervesSystemRpi5.MixProject do
   end
 
   defp description do
-    "Nerves System - Raspberry Pi 5 (64-bits)"
+    "Nerves System - Seeed reComputer Industrial R20xx (Raspberry Pi CM5)"
   end
 
   defp docs do
     [
       extras: ["README.md", "CHANGELOG.md"],
       main: "readme",
-      assets: %{"assets" => "./assets"},
       source_ref: "v#{@version}",
       source_url: @source_url,
       skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
@@ -99,7 +98,7 @@ defmodule NervesSystemRpi5.MixProject do
       links: %{
         "GitHub" => @source_url,
         "REUSE Compliance" =>
-          "https://api.reuse.software/info/github.com/nerves-project/nerves_system_rpi5"
+          "https://api.reuse.software/info/github.com/alde103/nerves_system_recomputer_r20xx"
       }
     ]
   end
@@ -121,6 +120,7 @@ defmodule NervesSystemRpi5.MixProject do
       "linux-6.18.defconfig",
       "mix.exs",
       "nerves_defconfig",
+      "package",
       "post-build.sh",
       "post-createfs.sh",
       "ramoops-pi4-overlay.dts",
