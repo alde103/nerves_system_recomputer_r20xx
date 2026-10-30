@@ -15,7 +15,7 @@ follows:
 ## v2.2.1-recomputer-r20xx-v1
 
 Initial port to the Seeed reComputer Industrial R20xx (Raspberry Pi CM5),
-based on nerves_system_rpi5 v2.2.1.
+based on nerves_system_rpi5 v2.2.1. Not tested on hardware yet.
 
 * reComputer additions
   * `reComputer-R2x-base` device tree overlay from Seeed (I/O expanders,

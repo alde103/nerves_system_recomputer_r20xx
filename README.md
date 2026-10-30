@@ -1,5 +1,8 @@
 # Nerves System for reComputer Industrial R20xx (64-bit)
 
+> [!WARNING]
+> Not tested on hardware yet. See [Status](#status).
+
 [![REUSE status](https://api.reuse.software/badge/github.com/alde103/nerves_system_recomputer_r20xx)](https://api.reuse.software/info/github.com/alde103/nerves_system_recomputer_r20xx)
 
 This is a Nerves System for the [Seeed Studio reComputer Industrial
