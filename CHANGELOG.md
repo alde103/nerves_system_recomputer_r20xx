@@ -12,6 +12,19 @@ follows:
    releases, and Linux kernel updates. They're also made to fix bugs and add
    features to the build infrastructure.
 
+## v2.2.1-recomputer-r20xx-v1
+
+Initial port to the Seeed reComputer Industrial R20xx (Raspberry Pi CM5),
+based on nerves_system_rpi5 v2.2.1. Not tested on hardware yet.
+
+* reComputer additions
+  * `reComputer-R2x-base` device tree overlay from Seeed (I/O expanders,
+    RTC, EEPROM, ATECC608A, TPM, RGB LED, buzzer, PCIe Gen 3)
+  * Seeed `rtc-pcf8563w` RTC driver with hardware watchdog support
+  * Kernel: PCA953x GPIO expanders, SMSC95xx USB Ethernet, TPM SPI and
+    GPIO beeper
+  * Run the CM5 USB 2.0 controller in host mode
+
 ## v2.2.1
 
 This is a security and bug fix release.

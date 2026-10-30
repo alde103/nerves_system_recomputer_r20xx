@@ -1,4 +1,4 @@
-# Firmware configuration file for the Raspberry Pi 5
+# Firmware configuration file for the reComputer Industrial R20xx
 #
 # IMPORTANT:
 # Edit `fwup.conf.eex` and run `mix generate_fwup_conf` to generate fwup.conf.
@@ -40,6 +40,7 @@ file_resources = [
   %{name: "overlays/ov5647.dtbo", path: "${NERVES_SYSTEM}/images/rpi-firmware/overlays/ov5647.dtbo"},
   %{name: "overlays/overlay_map.dtb", path: "${NERVES_SYSTEM}/images/rpi-firmware/overlays/overlay_map.dtb"},
   %{name: "overlays/ramoops-pi4.dtbo", path: "${NERVES_SYSTEM}/images/ramoops-pi4-overlay.dtb"},
+  %{name: "overlays/reComputer-R2x-base.dtbo", path: "${NERVES_SYSTEM}/images/rpi-firmware/overlays/reComputer-R2x-base.dtbo"},
   %{name: "overlays/rpi-backlight.dtbo", path: "${NERVES_SYSTEM}/images/rpi-firmware/overlays/rpi-backlight.dtbo"},
   %{name: "overlays/rpi-ft5406.dtbo", path: "${NERVES_SYSTEM}/images/rpi-firmware/overlays/rpi-ft5406.dtbo"},
   %{name: "overlays/tc358743.dtbo", path: "${NERVES_SYSTEM}/images/rpi-firmware/overlays/tc358743.dtbo"},
